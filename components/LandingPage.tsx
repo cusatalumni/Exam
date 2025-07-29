@@ -90,7 +90,7 @@ const LandingPage: React.FC = () => {
                 <h2 className="text-3xl sm:text-4xl font-bold text-center text-slate-800 mb-4">Available Exams</h2>
                 <p className="text-md sm:text-lg text-center text-slate-500 max-w-2xl mx-auto mb-12">Choose from our selection of practice and certification exams to test your skills and prepare for success.</p>
                 
-                <div className="space-y-12">
+                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
                     {activeOrg.examProductCategories.map(category => {
                         const practiceExam = activeOrg.exams.find(e => e.id === category.practiceExamId);
                         const certExam = activeOrg.exams.find(e => e.id === category.certificationExamId);
@@ -99,49 +99,63 @@ const LandingPage: React.FC = () => {
 
                         const isCertUnlocked = user && paidExamIds.includes(certExam.id);
                         const isCertInCart = user && cart.includes(certExam.id);
+                        const hasFreeAttempts = freeAttempts > 0;
 
                         return (
-                            <div key={category.id} className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-slate-200">
-                                <h3 className="text-2xl sm:text-3xl font-bold text-slate-800">{category.name}</h3>
-                                <p className="text-slate-500 mt-1 mb-6 max-w-3xl">{category.description}</p>
+                            <div key={category.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 flex flex-col transform hover:-translate-y-1 transition-transform duration-300">
+                                <div className="p-6">
+                                    <h3 className="text-2xl font-bold text-slate-800">{category.name}</h3>
+                                    <p className="text-slate-500 mt-1 mb-6 text-sm min-h-[40px]">{category.description}</p>
+                                </div>
                                 
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    {/* Practice Test */}
-                                    <div className="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col">
-                                        <h4 className="font-bold text-lg text-slate-700">Practice Test</h4>
-                                        <p className="text-slate-600 text-sm flex-grow mb-4">{practiceExam.numberOfQuestions} questions</p>
-                                        <button 
-                                            onClick={() => handleStartPractice(practiceExam.id)}
-                                            className="w-full mt-auto bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed"
-                                            disabled={!!user && freeAttempts <= 0}
-                                        >
-                                            Start Practice
-                                        </button>
-                                        {!!user && freeAttempts <= 0 && <p className="text-xs text-red-500 text-center mt-2">No free attempts left</p>}
+                                <div className="px-6 pb-6 mt-auto space-y-4">
+                                     {/* Practice Test */}
+                                    <div className="bg-slate-50/70 p-4 rounded-lg border border-slate-200">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <h4 className="font-semibold text-slate-700">Practice Test</h4>
+                                                <p className="text-xs text-slate-500">{practiceExam.numberOfQuestions} questions</p>
+                                            </div>
+                                            <button
+                                                onClick={() => handleStartPractice(practiceExam.id)}
+                                                className="bg-slate-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-slate-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+                                                disabled={!!user && !hasFreeAttempts}
+                                                aria-label={`Start practice test for ${category.name}`}
+                                            >
+                                                Practice
+                                            </button>
+                                        </div>
+                                         {!!user && !hasFreeAttempts && <p className="text-xs text-red-500 text-center mt-2 pt-2 border-t border-slate-200">No free attempts left</p>}
                                     </div>
                                     
                                     {/* Certification Exam */}
-                                    <div className="bg-cyan-50/50 p-5 rounded-lg border border-cyan-200 flex flex-col">
-                                        <h4 className="font-bold text-lg text-cyan-800">Certification Exam</h4>
-                                        <p className="text-cyan-700 text-sm flex-grow mb-4">{certExam.numberOfQuestions} questions</p>
-                                        {isCertUnlocked ? (
-                                            <button 
-                                                onClick={() => navigate(`/test/${certExam.id}`)}
-                                                className="w-full mt-auto flex justify-center items-center bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition"
-                                            >
-                                                <CheckCircle size={16} className="mr-2"/> Unlocked - Start Now
-                                            </button>
-                                        ) : (
-                                             <button 
-                                                onClick={() => handleAddToCart(certExam.id)}
-                                                disabled={isCertInCart}
-                                                className="w-full mt-auto flex justify-center items-center bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-cyan-700 transition disabled:bg-cyan-300 disabled:cursor-not-allowed"
-                                            >
-                                                <ShoppingCart size={16} className="mr-2" />
-                                                {isCertInCart ? 'In Cart' : `Add to Cart ($${certExam.price})`}
-                                            </button>
-                                        )}
-                                        <p className="text-xs text-slate-500 text-center mt-2">Discount coupons can be applied at checkout.</p>
+                                    <div className="bg-cyan-50/50 p-4 rounded-lg border border-cyan-200">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <h4 className="font-semibold text-cyan-800">Certification Exam</h4>
+                                                <p className="text-xs text-cyan-700">{certExam.numberOfQuestions} questions</p>
+                                            </div>
+                                            {isCertUnlocked ? (
+                                                <button
+                                                    onClick={() => navigate(`/test/${certExam.id}`)}
+                                                    className="flex items-center bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition text-sm"
+                                                    aria-label={`Start certification exam for ${category.name}`}
+                                                >
+                                                    <CheckCircle size={16} className="mr-2" /> Start
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleAddToCart(certExam.id)}
+                                                    disabled={isCertInCart}
+                                                    className="flex items-center bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-cyan-700 transition disabled:bg-cyan-300 disabled:cursor-not-allowed text-sm"
+                                                    aria-label={`Add certification exam for ${category.name} to cart`}
+                                                >
+                                                    <ShoppingCart size={16} className="mr-2" />
+                                                    {isCertInCart ? 'In Cart' : `$${certExam.price}`}
+                                                </button>
+                                            )}
+                                        </div>
+                                         <p className="text-xs text-slate-500 text-center mt-2 pt-2 border-t border-cyan-200">Includes verifiable certificate upon passing.</p>
                                     </div>
                                 </div>
                             </div>
