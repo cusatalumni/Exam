@@ -1,30 +1,57 @@
-import type { User, Question, UserAnswer, TestResult, CertificateData, Organization, Exam } from '../types';
+
+
+import type { User, Question, UserAnswer, TestResult, CertificateData, Organization, Exam, ExamProductCategory } from '../types';
 import { logoBase64 } from '../assets/logo';
 
-// Internal type for the mock DB that includes password
-interface DbUser extends User {
-    password?: string;
-}
 
-// =================================================================
-// MOCK DATABASE & DYNAMIC CONFIGURATION
-// This simulates a backend database. In a real app, this would be
-// a separate service with a real database (e.g., Firebase, PostgreSQL).
-// =================================================================
+const EXAM_PRODUCT_CATEGORIES: ExamProductCategory[] = [
+    { id: 'prod-cpc', name: 'CPC', description: 'A test series designed to prepare you for the AAPC CPC (Certified Professional Coder) certification.', practiceExamId: 'exam-cpc-practice', certificationExamId: 'exam-cpc-cert' },
+    { id: 'prod-cca', name: 'CCA', description: 'A test series aligned with AHIMA’s CCA (Certified Coding Associate) exam blueprint.', practiceExamId: 'exam-cca-practice', certificationExamId: 'exam-cca-cert' },
+    { id: 'prod-inpatient', name: 'Inpatient Coding', description: 'A test series for coders specializing in hospital inpatient coding.', practiceExamId: 'exam-inpatient-practice', certificationExamId: 'exam-inpatient-cert' },
+    { id: 'prod-outpatient', name: 'Outpatient Coding', description: 'A test series for coders focusing on ambulatory care and outpatient procedures.', practiceExamId: 'exam-outpatient-practice', certificationExamId: 'exam-outpatient-cert' },
+    { id: 'prod-billing', name: 'Medical Billing', description: 'A test series covering core concepts in medical billing and reimbursement.', practiceExamId: 'exam-billing-practice', certificationExamId: 'exam-billing-cert' },
+    { id: 'prod-risk', name: 'Risk Adjustment Coding', description: 'A test series on risk adjustment models and hierarchical condition categories (HCC).', practiceExamId: 'exam-risk-practice', certificationExamId: 'exam-risk-cert' },
+    { id: 'prod-auditing', name: 'Medical Auditing', description: 'A test series covering principles of medical record auditing and compliance.', practiceExamId: 'exam-auditing-practice', certificationExamId: 'exam-auditing-cert' },
+    { id: 'prod-icd', name: 'ICD-10-CM', description: 'A test series focusing on ICD-10-CM coding proficiency.', practiceExamId: 'exam-icd-practice', certificationExamId: 'exam-icd-cert' },
+];
+
+const ALL_EXAMS: Exam[] = [
+    // CPC
+    { id: 'exam-cpc-practice', name: 'CPC Practice Test', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-cpc-cert', name: 'CPC Certification Exam', description: '', price: 19.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // CCA
+    { id: 'exam-cca-practice', name: 'CCA Practice Test', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-cca-cert', name: 'CCA Certification Exam', description: '', price: 24.99, questionSourceUrl: '', numberOfQuestions: 100, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // Inpatient
+    { id: 'exam-inpatient-practice', name: 'Inpatient Coding Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-inpatient-cert', name: 'Inpatient Coding Certification', description: '', price: 19.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // Outpatient
+    { id: 'exam-outpatient-practice', name: 'Outpatient Coding Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-outpatient-cert', name: 'Outpatient Coding Certification', description: '', price: 14.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // Billing
+    { id: 'exam-billing-practice', name: 'Medical Billing Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-billing-cert', name: 'Medical Billing Certification', description: '', price: 12.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // Risk
+    { id: 'exam-risk-practice', name: 'Risk Adjustment Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-risk-cert', name: 'Risk Adjustment Certification', description: '', price: 19.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // Auditing
+    { id: 'exam-auditing-practice', name: 'Medical Auditing Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-auditing-cert', name: 'Medical Auditing Certification', description: '', price: 21.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+    // ICD
+    { id: 'exam-icd-practice', name: 'ICD-10-CM Practice', description: '', price: 0, questionSourceUrl: '', numberOfQuestions: 10, passScore: 70, certificateTemplateId: '', isPractice: true },
+    { id: 'exam-icd-cert', name: 'ICD-10-CM Certification', description: '', price: 14.99, questionSourceUrl: '', numberOfQuestions: 50, passScore: 70, certificateTemplateId: 'cert-mco-1', isPractice: false },
+];
+
+
+const MASTER_QUESTION_SOURCE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMFALpdYSsjcnERF1wOpcnIT2qrRAZoyJYzc5T8_xq_Q3eQjAJJH30iDMMlO2tKhIYYKdOVBiPqF3Y/pub?gid=743667979&single=true&output=csv';
 
 let mockDb: {
-    users: DbUser[];
+    users: User[];
     testResults: TestResult[];
     organizations: Organization[];
 } = {
     users: [
-        { 
-            id: 'user-001', 
-            name: 'Administrator', 
-            email: 'admin@annapoornainfo.com', 
-            role: 'admin',
-            password: 'Mansat@2'
-        }
+        { id: 'user-001', name: 'John Doe', email: 'john@example.com' }
     ],
     testResults: [],
     organizations: [
@@ -33,28 +60,20 @@ let mockDb: {
             name: 'Medical Coding Online',
             website: 'www.coding-online.net',
             logo: logoBase64,
-            exams: [
-                {
-                    id: 'exam-mco-free',
-                    name: 'Free Training',
-                    description: 'Hone your skills with a quick test. No strings attached.',
-                    price: 0,
-                    questionSourceUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMFALpdYSsjcnERF1wOpcnIT2qrRAZoyJYzc5T8_xq_Q3eQjAJJH30iDMMlO2tKhIYYKdOVBiPqF3Y/pub?gid=743667979&single=true&output=csv',
-                    numberOfQuestions: 10,
-                    passScore: 60,
-                    certificateTemplateId: 'cert-mco-1'
-                },
-                {
-                    id: 'exam-mco-paid',
-                    name: 'Paid Original Test',
-                    description: 'The full exam experience, designed to mimic official certification tests.',
-                    price: 49.99,
-                    questionSourceUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMFALpdYSsjcnERF1wOpcnIT2qrRAZoyJYzc5T8_xq_Q3eQjAJJH30iDMMlO2tKhIYYKdOVBiPqF3Y/pub?gid=743667979&single=true&output=csv',
-                    numberOfQuestions: 10,
-                    passScore: 60,
-                    certificateTemplateId: 'cert-mco-1'
+            exams: ALL_EXAMS.map(exam => ({
+                ...exam,
+                recommendedBook: exam.isPractice ? undefined : {
+                    title: 'Official CPC Certification Study Guide',
+                    description: 'The most comprehensive guide to prepare for your certification. Includes practice questions and detailed explanations to master the material.',
+                    imageUrl: 'https://via.placeholder.com/300x400/003366/FFFFFF.png?text=Study+Guide',
+                    affiliateLinks: {
+                        com: 'https://www.amazon.com/dp/164018398X?tag=mykada-20',
+                        in: 'https://www.amazon.in/dp/164018398X?tag=httpcodingonl-21',
+                        ae: 'https://amzn.to/46QduHx'
+                    }
                 }
-            ],
+            })),
+            examProductCategories: EXAM_PRODUCT_CATEGORIES,
             certificateTemplates: [
                 {
                     id: 'cert-mco-1',
@@ -66,49 +85,16 @@ let mockDb: {
                     signature2Title: 'Chief Instructor'
                 }
             ]
-        },
-        {
-            id: 'org-hci',
-            name: 'Healthcare Certs Inc.',
-            website: 'www.h-certs.com',
-            logo: logoBase64, // Can use a different logo here
-            exams: [
-                {
-                    id: 'exam-hci-pharma',
-                    name: 'Pharma Assistant Cert',
-                    description: 'Test your knowledge on pharmaceutical practices and patient care.',
-                    price: 25.00,
-                    questionSourceUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSMFALpdYSsjcnERF1wOpcnIT2qrRAZoyJYzc5T8_xq_Q3eQjAJJH30iDMMlO2tKhIYYKdOVBiPqF3Y/pub?gid=743667979&single=true&output=csv', // Different sheet ideally
-                    numberOfQuestions: 5,
-                    passScore: 70,
-                    certificateTemplateId: 'cert-hci-1'
-                }
-            ],
-            certificateTemplates: [
-                {
-                    id: 'cert-hci-1',
-                    title: 'Pharmaceutical Assistant',
-                    body: 'Is hereby certified for completing the introductory course on pharmaceutical assistance and patient interaction with a final score of {finalScore}%.',
-                    signature1Name: 'Dr. Evelyn Hayes',
-                    signature1Title: 'Head of Certification',
-                    signature2Name: 'Mr. David Chen',
-                    signature2Title: 'Lead Examiner'
-                }
-            ]
         }
     ]
 };
 
+const allQuestionsCache = new Map<string, Question[]>();
 
-// Cache for the questions to avoid re-fetching on every test start.
-const questionCache = new Map<string, Question[]>();
-
-// Fetches and parses questions from a given Google Sheet URL.
-const fetchAndParseQuestions = async (url: string): Promise<Question[]> => {
-    if (questionCache.has(url)) {
-        return questionCache.get(url)!;
+const fetchAndParseAllQuestions = async (url: string): Promise<Question[]> => {
+    if (allQuestionsCache.has(url)) {
+        return allQuestionsCache.get(url)!;
     }
-
     try {
         const response = await fetch(`${url}&_=${new Date().getTime()}`);
         if (!response.ok) throw new Error(`Failed to fetch sheet: ${response.statusText}`);
@@ -135,20 +121,15 @@ const fetchAndParseQuestions = async (url: string): Promise<Question[]> => {
                 const options = optionsStr.split('|');
                 if (options.length < 2) return null;
 
-                return {
-                    id: index + 1,
-                    question: questionStr,
-                    options,
-                    correctAnswer: correctAnswerNum,
-                };
+                return { id: index + 1, question: questionStr, options, correctAnswer: correctAnswerNum };
             } catch {
                 return null;
             }
         }).filter((q): q is Question => q !== null);
-
+        
         if (questions.length === 0) throw new Error("No questions parsed from the sheet.");
         
-        questionCache.set(url, questions);
+        allQuestionsCache.set(url, questions);
         return questions;
     } catch (error) {
         console.error("Error fetching or parsing questions:", error);
@@ -159,79 +140,65 @@ const fetchAndParseQuestions = async (url: string): Promise<Question[]> => {
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export const googleSheetsService = {
-    // === DYNAMIC DATA MANAGEMENT (for Admin page) ===
-    getOrganizations: (): Organization[] => {
-        return mockDb.organizations;
-    },
-    updateOrganization: (updatedOrg: Organization): void => {
-        const index = mockDb.organizations.findIndex(o => o.id === updatedOrg.id);
-        if (index !== -1) {
-            mockDb.organizations[index] = updatedOrg;
-            console.log("Updated organization:", updatedOrg);
+    initializeAndCategorizeExams: async (): Promise<void> => {
+        // Just fetch all questions. No AI categorization.
+        if (allQuestionsCache.has(MASTER_QUESTION_SOURCE_URL)) {
+            return; 
         }
+        await fetchAndParseAllQuestions(MASTER_QUESTION_SOURCE_URL);
     },
-
-    // === AUTHENTICATION ===
-    login: async (email: string, password: string): Promise<User> => {
+    
+    getOrganizations: (): Organization[] => mockDb.organizations,
+    
+    login: async (email: string, _password: string): Promise<User> => {
         await delay(500);
         const user = mockDb.users.find(u => u.email === email);
-        if (user && user.password === password) {
-            // Return a user object without the password
-            const { password: _, ...userToReturn } = user;
-            return userToReturn;
-        }
+        if (user) return user;
         throw new Error("User not found or password incorrect.");
     },
-    signup: async (name: string, email: string, password: string): Promise<User> => {
+    
+    signup: async (name: string, email: string, _password: string): Promise<User> => {
         await delay(500);
         if (mockDb.users.some(u => u.email === email)) {
             throw new Error("User with this email already exists.");
         }
-        const newUser: DbUser = { 
-            id: `user-${Date.now()}`, 
-            name, 
-            email, 
-            role: 'user', 
-            password 
-        };
+        const newUser: User = { id: `user-${Date.now()}`, name, email };
         mockDb.users.push(newUser);
-        
-        const { password: _, ...userToReturn } = newUser;
-        return userToReturn;
+        return newUser;
     },
-
-    // === DYNAMIC EXAM LOGIC ===
+    
     getExamConfig: (orgId: string, examId: string): Exam | undefined => {
         const org = mockDb.organizations.find(o => o.id === orgId);
         return org?.exams.find(e => e.id === examId);
     },
-
+    
     getQuestions: async (examConfig: Exam): Promise<Question[]> => {
-        const allQuestions = await fetchAndParseQuestions(examConfig.questionSourceUrl);
-        if (allQuestions.length === 0) return [];
+        const allQuestions = allQuestionsCache.get(MASTER_QUESTION_SOURCE_URL);
         
+        if (!allQuestions || allQuestions.length === 0) {
+             throw new Error(`No questions found for: ${examConfig.name}`);
+        }
+
         const shuffled = [...allQuestions].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, Math.min(examConfig.numberOfQuestions, allQuestions.length));
+        return shuffled.slice(0, Math.min(examConfig.numberOfQuestions, shuffled.length));
     },
 
     submitTest: async (userId: string, orgId: string, examId: string, answers: UserAnswer[]): Promise<TestResult> => {
         await delay(1000);
-        
         const examConfig = googleSheetsService.getExamConfig(orgId, examId);
         if (!examConfig) throw new Error("Invalid exam configuration.");
         
-        const allQuestions = questionCache.get(examConfig.questionSourceUrl);
-        if (!allQuestions) throw new Error("Could not retrieve questions to grade the test.");
+        const questionPool = allQuestionsCache.get(MASTER_QUESTION_SOURCE_URL);
+        
+        if (!questionPool || questionPool.length === 0) throw new Error("Could not retrieve questions to grade the test.");
         
         let correctCount = 0;
         const review: TestResult['review'] = [];
 
         answers.forEach(userAnswer => {
-            const question = allQuestions.find(q => q.id === userAnswer.questionId);
+            const question = questionPool.find(q => q.id === userAnswer.questionId);
             if (question) {
-                if ((userAnswer.answer + 1) === question.correctAnswer) {
-                    correctCount++;
-                }
+                if ((userAnswer.answer + 1) === question.correctAnswer) correctCount++;
                 review.push({
                     questionId: question.id,
                     question: question.question,
@@ -244,30 +211,32 @@ export const googleSheetsService = {
 
         const totalQuestions = answers.length;
         const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
-
         const newResult: TestResult = {
             testId: `test-${Date.now()}`,
-            userId,
-            examId,
-            answers,
+            userId, examId, answers,
             score: parseFloat(score.toFixed(2)),
-            correctCount,
-            totalQuestions,
+            correctCount, totalQuestions,
             timestamp: Date.now(),
             review
         };
-
         mockDb.testResults.push(newResult);
         return newResult;
     },
-
+    
     getTestResult: async(testId: string, userId: string): Promise<TestResult | null> => {
         await delay(500);
         const foundResult = mockDb.testResults.find(r => r.testId === testId && r.userId === userId);
         return foundResult || null;
     },
+    
+    getTestResultsForUser: async(userId: string): Promise<TestResult[]> => {
+        await delay(500);
+        return mockDb.testResults.filter(r => r.userId === userId).sort((a, b) => b.timestamp - a.timestamp);
+    },
 
     getCertificateData: async (testId: string, user: User, orgId: string): Promise<CertificateData | null> => {
+        if (testId === 'sample') return googleSheetsService.getSampleCertificateData(user);
+
         await delay(500);
         const result = mockDb.testResults.find(r => r.testId === testId && r.userId === user.id);
         const organization = mockDb.organizations.find(o => o.id === orgId);
@@ -280,16 +249,25 @@ export const googleSheetsService = {
         if (result && exam && template && exam.price > 0 && result.score >= exam.passScore) {
             return {
                 certificateNumber: `${result.timestamp}`,
-                candidateName: user.name,
-                finalScore: result.score,
-                date: new Date(result.timestamp).toLocaleDateString('en-US', {
-                    year: 'numeric', month: 'long', day: 'numeric',
-                }),
-                totalQuestions: result.totalQuestions,
-                organization,
-                template
+                candidateName: user.name, finalScore: result.score,
+                date: new Date(result.timestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                totalQuestions: result.totalQuestions, organization, template
             };
         }
         return null;
+    },
+
+    getSampleCertificateData: (user: User): CertificateData => {
+        const organization = mockDb.organizations[0];
+        const template = organization.certificateTemplates[0];
+        return {
+            certificateNumber: '12345-SAMPLE',
+            candidateName: user.name,
+            finalScore: 95,
+            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+            totalQuestions: 10,
+            organization,
+            template
+        };
     },
 };

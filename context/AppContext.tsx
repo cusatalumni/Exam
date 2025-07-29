@@ -1,13 +1,16 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { googleSheetsService } from '../services/googleSheetsService';
 import type { Organization } from '../types';
+import toast from 'react-hot-toast';
 
 interface AppContextType {
   organizations: Organization[];
   activeOrg: Organization | null;
+  isLoading: boolean;
+  isInitializing: boolean;
   setActiveOrgById: (orgId: string) => void;
   updateActiveOrg: (updatedOrg: Organization) => void;
-  isLoading: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -16,16 +19,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [activeOrg, setActiveOrg] = useState<Organization | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Initialize with data from the mock service
-    const allOrgs = googleSheetsService.getOrganizations();
-    setOrganizations(allOrgs);
-    if (allOrgs.length > 0) {
-        // Set the first organization as the default active one
-        setActiveOrg(allOrgs[0]);
-    }
-    setIsLoading(false);
+    const initializeApp = async () => {
+      try {
+        await googleSheetsService.initializeAndCategorizeExams();
+        toast.success("Exams ready!", { duration: 2000 });
+      } catch (error) {
+        console.error("Failed to load exams:", error);
+        toast.error("Could not load exam questions. Please refresh.");
+      }
+
+      const allOrgs = googleSheetsService.getOrganizations();
+      setOrganizations(allOrgs);
+      if (allOrgs.length > 0) {
+          setActiveOrg(allOrgs[0]);
+      }
+      setIsInitializing(false);
+      setIsLoading(false);
+    };
+
+    initializeApp();
   }, []);
 
   const setActiveOrgById = (orgId: string) => {
@@ -36,15 +51,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateActiveOrg = (updatedOrg: Organization) => {
-      // Update in the mock service
-      googleSheetsService.updateOrganization(updatedOrg);
-      // Update state
-      setActiveOrg(updatedOrg);
-      setOrganizations(prevOrgs => prevOrgs.map(o => o.id === updatedOrg.id ? updatedOrg : o));
+    setOrganizations(prevOrgs => 
+        prevOrgs.map(org => org.id === updatedOrg.id ? updatedOrg : org)
+    );
+    setActiveOrg(updatedOrg);
   };
 
   return (
-    <AppContext.Provider value={{ organizations, activeOrg, setActiveOrgById, updateActiveOrg, isLoading }}>
+    <AppContext.Provider value={{ organizations, activeOrg, isLoading, isInitializing, setActiveOrgById, updateActiveOrg }}>
       {children}
     </AppContext.Provider>
   );

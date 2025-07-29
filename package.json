@@ -1,5 +1,5 @@
 {
-  "name": "annapoorna-examination-app",
+  "name": "medical-coding-online-examination",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,11 +15,12 @@
     "react-hot-toast": "^2.5.2",
     "lucide-react": "^0.525.0",
     "jspdf": "^3.0.1",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "@google/genai": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
-    "typescript": "~5.7.2",
+    "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
 }

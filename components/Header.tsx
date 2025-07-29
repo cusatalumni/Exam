@@ -2,10 +2,10 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useAppContext } from '../context/AppContext';
-import { LogOut, UserCircle, ShieldCheck } from 'lucide-react';
+import { LogOut, UserCircle, LogIn, ShoppingCart } from 'lucide-react';
 
 const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, cart } = useAuth();
   const { activeOrg } = useAppContext();
   const navigate = useNavigate();
 
@@ -14,11 +14,13 @@ const Header: React.FC = () => {
     navigate('/');
   };
 
+  const headerLink = user ? "/dashboard" : "/";
+
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {activeOrg ? (
-            <Link to="/dashboard" className="flex items-center space-x-3">
+            <Link to={headerLink} className="flex items-center space-x-3">
                  <img
                     src={activeOrg.logo}
                     alt={`${activeOrg.name} Logo`}
@@ -46,11 +48,13 @@ const Header: React.FC = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              {user.role === 'admin' && (
-                  <Link to="/admin" className="flex items-center space-x-2 text-cyan-600 font-medium hover:text-cyan-700 transition">
-                      <ShieldCheck size={18} />
-                      <span>Admin Panel</span>
-                  </Link>
+              {cart.length > 0 && (
+                <Link to="/checkout" className="relative p-2 hover:bg-slate-100 rounded-full">
+                    <ShoppingCart size={24} className="text-slate-600"/>
+                    <span className="absolute -top-1 -right-1 bg-cyan-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {cart.length}
+                    </span>
+                </Link>
               )}
               <div className="flex items-center space-x-2 text-slate-600">
                 <UserCircle size={20} />
@@ -65,7 +69,13 @@ const Header: React.FC = () => {
               </button>
             </>
           ) : (
-            <div></div> // Empty div when logged out
+             <button
+                onClick={() => navigate('/login')}
+                className="flex items-center space-x-2 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+              >
+                <LogIn size={16} />
+                <span>Login / Sign Up</span>
+              </button>
           )}
         </div>
       </div>

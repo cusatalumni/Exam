@@ -2,7 +2,6 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user';
 }
 
 export interface Question {
@@ -62,6 +61,17 @@ export interface CertificateTemplate {
     signature2Title: string;
 }
 
+export interface RecommendedBook {
+    title: string;
+    description: string;
+    imageUrl: string;
+    affiliateLinks: { // These should be the full, final affiliate URLs
+        com: string;
+        in: string;
+        ae: string;
+    };
+}
+
 export interface Exam {
     id: string;
     name: string;
@@ -71,6 +81,16 @@ export interface Exam {
     numberOfQuestions: number;
     passScore: number;
     certificateTemplateId: string;
+    recommendedBook?: RecommendedBook;
+    isPractice: boolean;
+}
+
+export interface ExamProductCategory {
+    id: string;
+    name: string;
+    description: string;
+    practiceExamId: string;
+    certificationExamId: string;
 }
 
 export interface Organization {
@@ -79,5 +99,6 @@ export interface Organization {
     website: string;
     logo: string; // base64 string
     exams: Exam[];
+    examProductCategories: ExamProductCategory[];
     certificateTemplates: CertificateTemplate[];
 }

@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight, Send } from 'lucide-react';
 const Test: React.FC = () => {
   const { examId } = useParams<{ examId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, useFreeAttempt } = useAuth();
   const { activeOrg } = useAppContext();
 
   const [examConfig, setExamConfig] = useState<Exam | null>(null);
@@ -36,6 +36,10 @@ const Test: React.FC = () => {
         return;
     }
     setExamConfig(config);
+
+    if (config.price === 0) {
+        useFreeAttempt();
+    }
 
     const fetchQuestions = async () => {
       try {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { googleSheetsService } from '../services/googleSheetsService';
@@ -32,10 +33,6 @@ const Login: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  const handleForgotPassword = () => {
-    toast("This is a demo. The admin password is 'Mansat@2'.", { duration: 6000 });
   };
 
   return (
@@ -106,20 +103,6 @@ const Login: React.FC = () => {
               />
             </div>
           </div>
-          
-           {isLogin && (
-            <div className="flex items-center justify-end">
-              <div className="text-sm">
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="font-medium text-cyan-600 hover:text-cyan-500"
-                >
-                  Forgot your password?
-                </button>
-              </div>
-            </div>
-          )}
 
           <div>
             <button

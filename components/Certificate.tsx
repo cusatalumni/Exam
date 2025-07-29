@@ -10,8 +10,20 @@ import { Download, ArrowLeft } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+const Watermark: React.FC = () => (
+    <div className="absolute inset-0 grid grid-cols-3 grid-rows-6 gap-4 pointer-events-none overflow-hidden">
+        {Array.from({ length: 18 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-center -rotate-45">
+                <p className="text-slate-200/50 font-bold text-4xl md:text-5xl tracking-widest opacity-50 select-none">
+                    PREVIEW
+                </p>
+            </div>
+        ))}
+    </div>
+);
+
 const Certificate: React.FC = () => {
-    const { testId } = useParams<{ testId: string }>();
+    const { testId = 'sample' } = useParams<{ testId?: string }>();
     const navigate = useNavigate();
     const { user } = useAuth();
     const { activeOrg } = useAppContext();
@@ -22,7 +34,7 @@ const Certificate: React.FC = () => {
 
     useEffect(() => {
         const fetchCertificateData = async () => {
-            if (!testId || !user || !activeOrg) {
+            if (!user || !activeOrg) {
                 toast.error("Invalid data. Cannot generate certificate.");
                 navigate('/dashboard');
                 return;
@@ -105,7 +117,8 @@ const Certificate: React.FC = () => {
                 </button>
             </div>
             
-            <div ref={certificateRef} className="w-full aspect-[1.414/1] bg-white p-4 font-serif-display shadow-lg border-8 border-teal-900">
+            <div ref={certificateRef} className="w-full aspect-[1.414/1] bg-white p-4 font-serif-display shadow-lg border-8 border-teal-900 relative">
+                 {testId === 'sample' && <Watermark />}
                 <div className="w-full h-full border-2 border-teal-700 flex flex-col p-6">
                     
                     <div className="flex items-center space-x-3">
